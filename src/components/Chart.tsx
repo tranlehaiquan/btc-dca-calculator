@@ -9,6 +9,8 @@ import {
   Tooltip,
   Legend
 } from 'recharts';
+import { useState } from 'react';
+import { format } from 'date-fns';
 import type { InvestmentResult } from '../api';
 
 interface ChartProps {
@@ -16,11 +18,25 @@ interface ChartProps {
 }
 
 export function Chart({ data }: ChartProps) {
+  const [showPrice, setShowPrice] = useState(false);
+
   if (!data || data.length === 0) return null;
 
   return (
     <div className="chart-container">
-      <h3>Portfolio Performance</h3>
+      <div className="chart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h3 style={{ margin: 0 }}>Portfolio Performance</h3>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: '#94a3b8' }}>
+          <input 
+            type="checkbox" 
+            checked={showPrice} 
+            onChange={(e) => setShowPrice(e.target.checked)}
+            style={{ accentColor: '#F7931A' }}
+          />
+          Show BTC Price
+        </label>
+      </div>
+      
       <div style={{ width: '100%', height: 400 }}>
         <ResponsiveContainer>
           <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -32,6 +48,10 @@ export function Chart({ data }: ChartProps) {
               <linearGradient id="colorInvested" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.3}/>
                 <stop offset="95%" stopColor="#94a3b8" stopOpacity={0}/>
+              </linearGradient>
+              <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
               </linearGradient>
             </defs>
             <XAxis 
@@ -45,10 +65,21 @@ export function Chart({ data }: ChartProps) {
               }}
             />
             <YAxis 
+              yAxisId="left"
               stroke="#94a3b8" 
               fontSize={12}
               tickFormatter={(value) => `$${value.toLocaleString()}`}
             />
+            {showPrice && (
+              <YAxis 
+                yAxisId="right"
+                orientation="right"
+                stroke="#10b981" 
+                fontSize={12}
+                domain={['auto', 'auto']}
+                tickFormatter={(value) => `$${value.toLocaleString()}`}
+              />
+            )}
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
             <Tooltip 
               contentStyle={{ 
@@ -57,10 +88,15 @@ export function Chart({ data }: ChartProps) {
                 borderRadius: '8px',
                 color: '#fff'
               }}
-              formatter={(value: number | undefined) => [`$${(value || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, ''] as [string, string]}
+              formatter={(value: number, name: string) => {
+                if (name === "BTC Price") return [`$${value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, name];
+                return [`$${value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, name];
+              }}
+              labelFormatter={(label) => format(new Date(label), 'MMM d, yyyy')}
             />
             <Legend wrapperStyle={{ paddingTop: '20px' }}/>
             <Area 
+              yAxisId="left"
               type="monotone" 
               dataKey="invested" 
               stroke="#94a3b8" 
@@ -70,6 +106,7 @@ export function Chart({ data }: ChartProps) {
               strokeWidth={2}
             />
             <Area 
+              yAxisId="left"
               type="monotone" 
               dataKey="value" 
               stroke="#F7931A" 
@@ -78,6 +115,18 @@ export function Chart({ data }: ChartProps) {
               name="Portfolio Value"
               strokeWidth={2}
             />
+            {showPrice && (
+              <Area 
+                yAxisId="right"
+                type="monotone" 
+                dataKey="price" 
+                stroke="#10b981" 
+                fillOpacity={1} 
+                fill="url(#colorPrice)" 
+                name="BTC Price"
+                strokeWidth={2}
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </div>

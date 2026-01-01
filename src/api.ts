@@ -26,6 +26,8 @@ const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
 
 import { getFallbackBitcoinHistory } from './fallbackData';
 
+
+
 export async function fetchBitcoinHistory(): Promise<PricePoint[]> {
   try {
     const cached = localStorage.getItem(CACHE_KEY);
@@ -36,8 +38,10 @@ export async function fetchBitcoinHistory(): Promise<PricePoint[]> {
       }
     }
 
+    // Binance Public API
+    // limit=1000 gives roughly 2.7 years of daily data, which covers our 2023-Present needs
     const response = await fetch(
-      'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=max&interval=daily'
+      'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=1000'
     );
     
     if (!response.ok) {
@@ -45,9 +49,13 @@ export async function fetchBitcoinHistory(): Promise<PricePoint[]> {
     }
 
     const json = await response.json();
-    const prices: PricePoint[] = json.prices.map(([date, price]: [number, number]) => ({
-      date,
-      price
+    
+    // Binance format: [ [timestamp, open, high, low, close, volume, closeTime, ...], ... ]
+    // We want index 0 (timestamp) and index 4 (close price)
+    // Note: values are strings, so we must parse float
+    const prices: PricePoint[] = json.map((kline: any[]) => ({
+      date: kline[0],
+      price: parseFloat(kline[4])
     }));
 
     localStorage.setItem(CACHE_KEY, JSON.stringify({

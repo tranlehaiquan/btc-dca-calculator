@@ -1,5 +1,5 @@
-import { startOfDay, addDays, format } from 'date-fns';
-import { PricePoint } from './api';
+import { startOfDay, addDays } from 'date-fns';
+import type { PricePoint } from './api';
 
 export function getFallbackBitcoinHistory(): PricePoint[] {
   const prices: PricePoint[] = [];
