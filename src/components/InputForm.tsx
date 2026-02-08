@@ -1,5 +1,4 @@
-
-import type { Frequency, Asset } from '../api';
+import type { Frequency, Asset } from '../constants';
 import { Calendar, DollarSign, RefreshCw, Coins } from 'lucide-react';
 
 interface InputFormProps {
@@ -26,8 +25,6 @@ export function InputForm({
   setFrequency,
   startDate,
   setStartDate,
-  // endDate,
-  // setEndDate,
   onCalculate,
   isLoading
 }: InputFormProps) {

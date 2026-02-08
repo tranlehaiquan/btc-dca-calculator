@@ -1,60 +1,22 @@
-
-import { useState, useEffect } from 'react';
-import { fetchPriceHistory, calculateDCA, ASSET_CONFIG } from './api';
-import type { PricePoint, InvestmentResult, Frequency, Asset } from './api';
+import { useDcaCalculator } from './hooks/useDcaCalculator';
+import { ASSET_CONFIG } from './constants';
 import { InputForm } from './components/InputForm';
 import { ResultsDashboard } from './components/ResultsDashboard';
 import { Chart } from './components/Chart';
 import { Bitcoin, Coins, Gem } from 'lucide-react';
 
 function App() {
-  const [asset, setAsset] = useState<Asset>('BTC');
-  const [prices, setPrices] = useState<PricePoint[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Form State
-  const [amount, setAmount] = useState(100);
-  const [frequency, setFrequency] = useState<Frequency>('weekly');
-  const [startDate, setStartDate] = useState('2023-01-01');
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
-
-  // Results State
-  const [result, setResult] = useState<InvestmentResult | null>(null);
-
-  const handleCalculate = () => {
-    if (prices.length === 0) return;
-    
-    const res = calculateDCA(
-      prices,
-      amount,
-      frequency,
-      new Date(startDate),
-      new Date(endDate)
-    );
-    setResult(res);
-  };
-
-  // Auto-calculate when inputs change and prices are available
-  useEffect(() => {
-    if (prices.length > 0) {
-      handleCalculate();
-    }
-  }, [prices, amount, frequency, startDate, endDate]);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchPriceHistory(asset)
-      .then(data => {
-        setPrices(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setError(`Failed to load ${ASSET_CONFIG[asset].label} price history. Please try again later.`);
-        setLoading(false);
-      });
-  }, [asset]);
+  const {
+    asset, setAsset,
+    amount, setAmount,
+    frequency, setFrequency,
+    startDate, setStartDate,
+    endDate, setEndDate,
+    result,
+    loading,
+    error,
+    calculate
+  } = useDcaCalculator();
 
   const renderLogo = () => {
     switch (asset) {
@@ -93,7 +55,7 @@ function App() {
             setStartDate={setStartDate}
             endDate={endDate}
             setEndDate={setEndDate}
-            onCalculate={handleCalculate}
+            onCalculate={calculate}
             isLoading={loading}
           />
           

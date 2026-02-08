@@ -1,4 +1,3 @@
-
 import {
   ResponsiveContainer,
   AreaChart,
@@ -11,8 +10,9 @@ import {
 } from 'recharts';
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { ASSET_CONFIG } from '../api';
-import type { InvestmentResult, Asset } from '../api';
+import { ASSET_CONFIG } from '../constants';
+import type { Asset } from '../constants';
+import type { InvestmentResult } from '../api';
 
 interface ChartProps {
   data: InvestmentResult['history'];
@@ -25,7 +25,7 @@ export function Chart({ data, asset }: ChartProps) {
   if (!data || data.length === 0) return null;
 
   const config = ASSET_CONFIG[asset];
-  const mainColor = asset === 'BTC' ? '#F7931A' : asset === 'Gold' ? '#D4AF37' : '#94a3b8';
+  const mainColor = config.color;
 
   return (
     <div className="chart-container">

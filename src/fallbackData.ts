@@ -1,10 +1,11 @@
 import { startOfDay, addDays } from 'date-fns';
-import type { PricePoint, Asset } from './api';
+import type { PricePoint } from './api';
+import type { Asset } from './constants';
 
 export function getFallbackHistory(asset: Asset): PricePoint[] {
   const prices: PricePoint[] = [];
   let currentDate = startOfDay(new Date('2023-01-01'));
-  const endDate = startOfDay(new Date()); // Today
+  const endDate = startOfDay(new Date()); 
   
   let price = 0;
   let drift = 1.0015;
@@ -30,12 +31,9 @@ export function getFallbackHistory(asset: Asset): PricePoint[] {
       price: price
     });
 
-    // Simulate market movement
     const volatility = asset === 'BTC' ? 0.03 : 0.01;
     const change = 1 + (Math.random() * volatility * 2 - volatility);
-    
     price = price * change * drift;
-
     currentDate = addDays(currentDate, 1);
   }
 

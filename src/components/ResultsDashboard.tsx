@@ -1,6 +1,6 @@
-
-import { ASSET_CONFIG } from '../api';
-import type { InvestmentResult, Asset } from '../api';
+import { ASSET_CONFIG } from '../constants';
+import type { Asset } from '../constants';
+import type { InvestmentResult } from '../api';
 import { TrendingUp, TrendingDown, Wallet, Coins } from 'lucide-react';
 
 interface ResultsDashboardProps {
