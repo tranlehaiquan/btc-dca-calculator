@@ -4,6 +4,7 @@ import { InputForm } from "./components/InputForm";
 import { ResultsDashboard } from "./components/ResultsDashboard";
 import { Chart } from "./components/Chart";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
+import { SEO } from "./components/SEO";
 import { Bitcoin, Coins, Gem } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -43,6 +44,7 @@ function App() {
     <div
       className={`min-h-screen bg-[#0f111a] text-white selection:bg-[var(--asset-primary)] selection:text-black asset-${asset.toLowerCase()}`}
     >
+      <SEO asset={asset} />
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="flex justify-end mb-4">
           <LanguageSwitcher />
