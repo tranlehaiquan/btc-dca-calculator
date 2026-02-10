@@ -18,7 +18,9 @@
       "monthly": "Hàng tháng"
     },
     "calculate_btn": "Tính toán lợi nhuận",
-    "loading": "Đang tải dữ liệu..."
+    "loading": "Đang tải dữ liệu...",
+    "hide_form": "Ẩn thông số",
+    "show_form": "Hiện thông số"
   },
   "results": {
     "total_invested": "Tổng vốn đầu tư",

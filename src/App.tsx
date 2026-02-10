@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useDcaCalculator } from "./hooks/useDcaCalculator";
 import { ASSET_CONFIG } from "./constants";
 import { InputForm } from "./components/InputForm";
@@ -6,11 +7,13 @@ import { Chart } from "./components/Chart";
 import { TransactionHistory } from "./components/TransactionHistory";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { SEO } from "./components/SEO";
-import { Bitcoin, Coins, Gem } from "lucide-react";
+import { Bitcoin, Coins, Gem, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Button } from "./components/ui/button";
 
 function App() {
   const { t } = useTranslation();
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const {
     asset,
     setAsset,
@@ -76,25 +79,39 @@ function App() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-            <aside className="lg:col-span-4">
-              <InputForm
-                asset={asset}
-                setAsset={setAsset}
-                amount={amount}
-                setAmount={setAmount}
-                frequency={frequency}
-                setFrequency={setFrequency}
-                startDate={startDate}
-                setStartDate={setStartDate}
-                endDate={endDate}
-                setEndDate={setEndDate}
-                onCalculate={calculate}
-                isLoading={loading}
-              />
-            </aside>
+          <div className="mb-6 flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+              className="hidden lg:flex items-center gap-2 text-slate-400 hover:text-white"
+            >
+              {isSidebarVisible ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
+              {isSidebarVisible ? t("input.hide_form") : t("input.show_form")}
+            </Button>
+          </div>
 
-            <section className="space-y-8 lg:col-span-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+            {isSidebarVisible && (
+              <aside className="lg:col-span-4">
+                <InputForm
+                  asset={asset}
+                  setAsset={setAsset}
+                  amount={amount}
+                  setAmount={setAmount}
+                  frequency={frequency}
+                  setFrequency={setFrequency}
+                  startDate={startDate}
+                  setStartDate={setStartDate}
+                  endDate={endDate}
+                  setEndDate={setEndDate}
+                  onCalculate={calculate}
+                  isLoading={loading}
+                />
+              </aside>
+            )}
+
+            <section className={`space-y-8 ${isSidebarVisible ? "lg:col-span-8" : "lg:col-span-12"}`}>
               {result ? (
                 <>
                   <ResultsDashboard result={result} asset={asset} />

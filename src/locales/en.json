@@ -18,7 +18,9 @@
       "monthly": "Monthly"
     },
     "calculate_btn": "Calculate Returns",
-    "loading": "Loading data..."
+    "loading": "Loading data...",
+    "hide_form": "Hide Form",
+    "show_form": "Show Form"
   },
   "results": {
     "total_invested": "Total Invested",
