@@ -26,6 +26,19 @@
     "current_value": "Current Value",
     "total_change": "Total Change"
   },
+  "transactions": {
+    "title": "Purchase History",
+    "date": "Date",
+    "amount": "Amount",
+    "price": "Price",
+    "units": "Units"
+  },
+  "report": {
+    "purchase_count": "Total Purchases",
+    "average_price": "Average Buy Price",
+    "best_price": "Best Buy Price",
+    "worst_price": "Worst Buy Price"
+  },
   "chart": {
     "title": "Portfolio Performance",
     "show_price": "Show {{asset}} Price",

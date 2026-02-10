@@ -21,11 +21,21 @@ export interface InvestmentResult {
   currentValue: number;
   totalUnits: number;
   roi: number;
+  averagePrice: number;
+  bestPrice: number;
+  worstPrice: number;
+  purchaseCount: number;
   history: {
     date: string;
     invested: number;
     value: number;
     price: number;
+  }[];
+  transactions: {
+    date: string;
+    amount: number;
+    price: number;
+    units: number;
   }[];
 }
 
@@ -89,6 +99,7 @@ export function calculateDCA(
   const start = startOfDay(startDate);
   const end = startOfDay(endDate);
   const history: InvestmentResult["history"] = [];
+  const transactions: InvestmentResult["transactions"] = [];
 
   const relevantPrices = prices
     .filter((p) => p.date >= start.getTime() && p.date <= end.getTime())
@@ -106,8 +117,16 @@ export function calculateDCA(
         isSameDay(pointDate, nextInvestmentDate) ||
         isBefore(nextInvestmentDate, pointDate)
       ) {
-        accumulatedUnits += amount / point.price;
+        const unitsBought = amount / point.price;
+        accumulatedUnits += unitsBought;
         accumulatedInvested += amount;
+
+        transactions.push({
+          date: format(point.date, "yyyy-MM-dd"),
+          amount: amount,
+          price: point.price,
+          units: unitsBought,
+        });
 
         switch (frequency) {
           case "daily":
@@ -134,6 +153,8 @@ export function calculateDCA(
   const currentPrice = prices[prices.length - 1]?.price || 0;
   const currentValue = accumulatedUnits * currentPrice;
 
+  const buyPrices = transactions.map((t) => t.price);
+
   return {
     totalInvested: accumulatedInvested,
     totalUnits: accumulatedUnits,
@@ -142,6 +163,12 @@ export function calculateDCA(
       accumulatedInvested > 0
         ? ((currentValue - accumulatedInvested) / accumulatedInvested) * 100
         : 0,
+    averagePrice:
+      accumulatedUnits > 0 ? accumulatedInvested / accumulatedUnits : 0,
+    bestPrice: buyPrices.length > 0 ? Math.min(...buyPrices) : 0,
+    worstPrice: buyPrices.length > 0 ? Math.max(...buyPrices) : 0,
+    purchaseCount: transactions.length,
     history,
+    transactions,
   };
 }

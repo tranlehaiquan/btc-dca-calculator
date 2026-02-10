@@ -2,7 +2,9 @@ import { useDcaCalculator } from "./hooks/useDcaCalculator";
 import { ASSET_CONFIG } from "./constants";
 import { InputForm } from "./components/InputForm";
 import { ResultsDashboard } from "./components/ResultsDashboard";
+import { DetailedReport } from "./components/DetailedReport";
 import { Chart } from "./components/Chart";
+import { TransactionHistory } from "./components/TransactionHistory";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { SEO } from "./components/SEO";
 import { Bitcoin, Coins, Gem } from "lucide-react";
@@ -97,7 +99,9 @@ function App() {
               {result ? (
                 <>
                   <ResultsDashboard result={result} asset={asset} />
+                  <DetailedReport result={result} asset={asset} />
                   <Chart data={result.history} asset={asset} />
+                  <TransactionHistory transactions={result.transactions} asset={asset} />
                 </>
               ) : (
                 <div className="flex h-full min-h-[400px] items-center justify-center rounded-3xl border-2 border-dashed border-white/5 bg-white/2 backdrop-blur-sm">

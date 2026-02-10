@@ -26,6 +26,19 @@
     "current_value": "Giá trị hiện tại",
     "total_change": "Tổng thay đổi"
   },
+  "transactions": {
+    "title": "Lịch sử mua",
+    "date": "Ngày",
+    "amount": "Số tiền",
+    "price": "Giá",
+    "units": "Số lượng"
+  },
+  "report": {
+    "purchase_count": "Tổng số lần mua",
+    "average_price": "Giá mua trung bình",
+    "best_price": "Giá mua tốt nhất",
+    "worst_price": "Giá mua cao nhất"
+  },
   "chart": {
     "title": "Hiệu suất danh mục",
     "show_price": "Hiện giá {{asset}}",
