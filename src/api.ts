@@ -65,10 +65,10 @@ export async function fetchPriceHistory(asset: Asset): Promise<PricePoint[]> {
         `https://api.binance.com/api/v3/klines?symbol=${config.symbol}&interval=1d&limit=1000`,
       );
       if (!response.ok) throw new Error(response.statusText);
-      const json = await response.json();
-      prices = json.map((kline: any[]) => ({
-        date: kline[0],
-        price: parseFloat(kline[4]),
+      const json = (await response.json()) as (string | number)[][];
+      prices = json.map((kline) => ({
+        date: kline[0] as number,
+        price: parseFloat(kline[4] as string),
       }));
     } else {
       const response = await fetch(
@@ -122,8 +122,8 @@ export async function fetchVnStockHistory(
       const baseUrl =
         typeof window !== "undefined" &&
         window.location.hostname === "localhost"
-          ? "http://localhost:3001/api/yahoo"
-          : "/api/yahoo";
+          ? "http://localhost:3001/api/yahoo/history"
+          : "/api/yahoo/history";
 
       const url = `${baseUrl}?symbol=${s}&period1=${tenYearsAgo}&period2=${now}`;
       const response = await fetch(url);
@@ -131,7 +131,7 @@ export async function fetchVnStockHistory(
       return await response.json();
     };
 
-    let json = await fetchFromProxy(yahooSymbol);
+    const json = await fetchFromProxy(yahooSymbol);
 
     if (json.chart.error) {
       // Try with .HN if .VN fails
@@ -156,7 +156,71 @@ export async function fetchVnStockHistory(
   }
 }
 
-function processYahooData(json: any, cacheKey: string): PricePoint[] {
+export interface StockSuggestion {
+  symbol: string;
+  shortname: string;
+  longname: string;
+  exchange: string;
+}
+
+interface YahooSearchQuote {
+  symbol: string;
+  shortname?: string;
+  longname?: string;
+  exchange: string;
+}
+
+export async function searchVnStock(query: string): Promise<StockSuggestion[]> {
+  if (!query || query.length < 2) return [];
+
+  try {
+    const baseUrl =
+      typeof window !== "undefined" &&
+      window.location.hostname === "localhost"
+        ? "http://localhost:3001/api/yahoo/search"
+        : "/api/yahoo/search";
+
+    const url = `${baseUrl}?q=${encodeURIComponent(query)}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Proxy error: ${response.statusText}`);
+    const json = (await response.json()) as { quotes: YahooSearchQuote[] };
+
+    if (!json.quotes) return [];
+
+    return json.quotes
+      .filter(
+        (q) =>
+          q.exchange === "HOSE" ||
+          q.exchange === "HNX" ||
+          q.symbol.endsWith(".VN") ||
+          q.symbol.endsWith(".HN"),
+      )
+      .map((q) => ({
+        symbol: q.symbol.split(".")[0],
+        shortname: q.shortname || q.symbol,
+        longname: q.longname || q.shortname || q.symbol,
+        exchange: q.exchange,
+      }));
+  } catch (error) {
+    console.error("Search Error:", error);
+    return [];
+  }
+}
+
+interface YahooChartResult {
+  chart: {
+    result: Array<{
+      timestamp: number[];
+      indicators: {
+        quote: Array<{
+          close: (number | null)[];
+        }>;
+      };
+    }>;
+  };
+}
+
+function processYahooData(json: YahooChartResult, cacheKey: string): PricePoint[] {
   const result = json.chart.result[0];
   const timestamps = result.timestamp;
   const quotes = result.indicators.quote[0].close;
@@ -164,7 +228,7 @@ function processYahooData(json: any, cacheKey: string): PricePoint[] {
   const prices: PricePoint[] = timestamps
     .map((timestamp: number, index: number) => ({
       date: timestamp * 1000,
-      price: quotes[index],
+      price: quotes[index] as number,
     }))
     .filter((p: PricePoint) => p.price !== null);
 

@@ -17,11 +17,9 @@ export default async function handler(req, res) {
 
   try {
     const { symbol, period1, period2 } = req.query;
-    
     if (!symbol || !period1 || !period2) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+      return res.status(400).json({ error: 'Missing required parameters: symbol, period1, period2' });
     }
-
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${period1}&period2=${period2}&interval=1d&events=history`;
     
     const response = await axios.get(url, {
@@ -33,7 +31,7 @@ export default async function handler(req, res) {
     
     res.status(200).json(response.data);
   } catch (error) {
-    console.error('Vercel API error:', error.message);
-    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to fetch data' });
+    console.error('Vercel API History error:', error.message);
+    res.status(error.response?.status || 500).json(error.response?.data || { error: 'Failed to fetch history data' });
   }
 }
