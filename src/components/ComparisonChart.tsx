@@ -16,24 +16,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 
 interface ComparisonChartProps {
-  results: Record<Asset, InvestmentResult | null>;
+  results: Record<string, InvestmentResult | null>;
+  assetColors?: Record<string, string>;
 }
 
-export function ComparisonChart({ results }: ComparisonChartProps) {
+export function ComparisonChart({ results, assetColors }: ComparisonChartProps) {
   const { t } = useTranslation();
 
-  const btcData = results.BTC?.history || [];
-  if (btcData.length === 0) return null;
+  const assetIds = Object.keys(results).filter(id => results[id] !== null);
+  if (assetIds.length === 0) return null;
 
+  // Use the longest history as base if possible, or just the first one
+  const firstAssetId = assetIds[0];
+  const baseHistory = results[firstAssetId]?.history || [];
+  
   // Merge data for chart
-  const chartData = btcData.map((item, index) => {
-    return {
+  const chartData = baseHistory.map((item, index) => {
+    const dataPoint: any = {
       date: item.date,
       invested: item.invested,
-      BTC: results.BTC?.history[index]?.value || 0,
-      Gold: results.Gold?.history[index]?.value || 0,
-      Silver: results.Silver?.history[index]?.value || 0,
     };
+    
+    assetIds.forEach(id => {
+      // Try to find matching date in other assets if histories aren't perfectly aligned
+      // For simplicity, we assume they are mostly aligned by index if they come from same logic
+      dataPoint[id] = results[id]?.history[index]?.value || 0;
+    });
+    
+    return dataPoint;
   });
 
   return (
@@ -97,30 +107,23 @@ export function ComparisonChart({ results }: ComparisonChartProps) {
                 dot={false}
                 strokeDasharray="5 5"
               />
-              <Line
-                type="monotone"
-                dataKey="BTC"
-                stroke={ASSET_CONFIG.BTC.color}
-                name={t("assets.BTC")}
-                strokeWidth={3}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="Gold"
-                stroke={ASSET_CONFIG.Gold.color}
-                name={t("assets.Gold")}
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="Silver"
-                stroke={ASSET_CONFIG.Silver.color}
-                name={t("assets.Silver")}
-                strokeWidth={2}
-                dot={false}
-              />
+              {assetIds.map(id => {
+                const isStandard = id === "BTC" || id === "Gold" || id === "Silver";
+                const color = assetColors?.[id] || (isStandard ? ASSET_CONFIG[id as Asset].color : "#8884d8");
+                const name = isStandard ? t(`assets.${id}`) : id;
+                
+                return (
+                  <Line
+                    key={id}
+                    type="monotone"
+                    dataKey={id}
+                    stroke={color}
+                    name={name}
+                    strokeWidth={id === "BTC" ? 3 : 2}
+                    dot={false}
+                  />
+                );
+              })}
             </LineChart>
           </ResponsiveContainer>
         </div>

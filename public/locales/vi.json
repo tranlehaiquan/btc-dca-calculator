@@ -87,7 +87,8 @@
   "vn_stocks": {
     "title": "DCA Cổ phiếu Việt Nam",
     "symbol_placeholder": "Nhập mã cổ phiếu (VD: VNM, FPT...)",
-    "select_symbol": "Chọn mã cổ phiếu"
+    "select_symbol": "Chọn mã cổ phiếu",
+    "add_to_compare": "Thêm vào so sánh"
   },
   "error": {
     "load_failed": "Không thể tải lịch sử giá {{asset}}."
