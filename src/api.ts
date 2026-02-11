@@ -93,7 +93,9 @@ export async function fetchPriceHistory(asset: Asset): Promise<PricePoint[]> {
   }
 }
 
-export async function fetchVnStockHistory(symbol: string): Promise<PricePoint[]> {
+export async function fetchVnStockHistory(
+  symbol: string,
+): Promise<PricePoint[]> {
   const CACHE_KEY = `vn_history_cache_${symbol}`;
   const now = Math.floor(Date.now() / 1000);
   const tenYearsAgo = now - 10 * 365 * 24 * 60 * 60;
@@ -114,16 +116,15 @@ export async function fetchVnStockHistory(symbol: string): Promise<PricePoint[]>
       yahooSymbol = `${yahooSymbol}.VN`;
     }
 
-    // Use relative path for Vercel/Production, fallback to localhost for local dev if needed
-    const proxyBaseUrl = "/api/yahoo";
-    
     const fetchFromProxy = async (s: string) => {
       // For local development without the backend running, you might need the full URL
       // but relative path is best for Vercel and Docker-served frontend.
-      const baseUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
-        ? "http://localhost:3001/api/yahoo" 
-        : "/api/yahoo";
-        
+      const baseUrl =
+        typeof window !== "undefined" &&
+        window.location.hostname === "localhost"
+          ? "http://localhost:3001/api/yahoo"
+          : "/api/yahoo";
+
       const url = `${baseUrl}?symbol=${s}&period1=${tenYearsAgo}&period2=${now}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error(`Proxy error: ${response.statusText}`);
@@ -131,7 +132,7 @@ export async function fetchVnStockHistory(symbol: string): Promise<PricePoint[]>
     };
 
     let json = await fetchFromProxy(yahooSymbol);
-    
+
     if (json.chart.error) {
       // Try with .HN if .VN fails
       if (yahooSymbol.endsWith(".VN")) {
@@ -147,7 +148,7 @@ export async function fetchVnStockHistory(symbol: string): Promise<PricePoint[]>
       }
       throw new Error(json.chart.error.description || "Yahoo Finance error");
     }
-    
+
     return processYahooData(json, CACHE_KEY);
   } catch (error) {
     console.error(`API Error for VN Stock ${symbol}:`, error);
@@ -248,7 +249,8 @@ export function calculateDCA(
   // Calculate Inflation Adjusted Value (Purchasing Power)
   const daysElapsed = differenceInDays(end, start);
   const yearsElapsed = daysElapsed / 365.25;
-  const inflationAdjustedValue = currentValue / Math.pow(1 + inflationRate / 100, yearsElapsed);
+  const inflationAdjustedValue =
+    currentValue / Math.pow(1 + inflationRate / 100, yearsElapsed);
 
   const buyPrices = transactions.map((t) => t.price);
 
