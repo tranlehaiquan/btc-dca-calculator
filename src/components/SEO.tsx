@@ -5,16 +5,24 @@ import { LANGUAGES } from "../i18n";
 
 interface SEOProps {
   asset?: Asset;
+  title?: string;
+  description?: string;
+  ogImage?: string;
 }
 
-export function SEO({ asset = "BTC" }: SEOProps) {
+export function SEO({ asset = "BTC", title: customTitle, description: customDescription, ogImage }: SEOProps) {
   const { t, i18n } = useTranslation();
 
   const assetName = t(`assets.${asset}`);
-  const title = `${assetName} DCA Calculator - Calculate Potential Returns`;
-  const description = t("app.subtitle");
+  const title = customTitle || `${assetName} DCA Calculator - Calculate Potential Returns`;
+  const description = customDescription || t("app.subtitle");
   const lang = i18n.language.split("-")[0];
-  const baseUrl = window.location.origin;
+  const baseUrl = "https://btc-dca-calculator.vercel.app";
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : baseUrl;
+  
+  // Default OG image based on asset if not provided
+  const defaultOgImage = `${baseUrl}/og-${asset.toLowerCase()}.png`;
+  const finalOgImage = ogImage || defaultOgImage;
 
   // Structured Data (JSON-LD)
   const structuredData = {
@@ -24,6 +32,7 @@ export function SEO({ asset = "BTC" }: SEOProps) {
     description: description,
     applicationCategory: "FinanceApplication",
     operatingSystem: "Web",
+    url: baseUrl,
     offers: {
       "@type": "Offer",
       price: "0",
@@ -42,6 +51,7 @@ export function SEO({ asset = "BTC" }: SEOProps) {
       <html lang={lang} />
       <title>{title}</title>
       <meta name="description" content={description} />
+      <meta name="keywords" content={`dca calculator, dollar cost averaging, ${assetName}, investment, crypto, finance`} />
 
       {/* hreflang tags for all supported languages */}
       {Object.keys(LANGUAGES).map((l) => (
@@ -49,7 +59,7 @@ export function SEO({ asset = "BTC" }: SEOProps) {
           key={l}
           rel="alternate"
           hrefLang={l}
-          href={`${baseUrl}?lng=${l}`}
+          href={`${baseUrl}/${window.location.pathname}?lng=${l}`}
         />
       ))}
       <link rel="alternate" hrefLang="x-default" href={baseUrl} />
@@ -61,16 +71,20 @@ export function SEO({ asset = "BTC" }: SEOProps) {
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content="website" />
+      <meta property="og:url" content={currentUrl} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
+      <meta property="og:image" content={finalOgImage} />
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={currentUrl} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={finalOgImage} />
 
       {/* Canonical Link */}
-      <link rel="canonical" href={baseUrl} />
+      <link rel="canonical" href={currentUrl} />
     </Helmet>
   );
 }

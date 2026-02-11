@@ -12,7 +12,10 @@ function CompareComponent() {
 
   return (
     <div>
-      <SEO />
+      <SEO 
+        title={`${t("comparison.title")} - Compare BTC, Gold, and Silver Returns`}
+        description="Compare the historical Dollar Cost Averaging (DCA) performance between Bitcoin, Gold, and Silver to see which investment strategy performed best."
+      />
       <header className="mb-16 space-y-4 text-center">
         <h1 className="text-5xl font-black tracking-tight md:text-6xl">
           <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
