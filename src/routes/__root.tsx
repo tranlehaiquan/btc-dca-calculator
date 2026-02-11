@@ -1,9 +1,19 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import React, { Suspense } from 'react';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { Button } from '../components/ui/button';
 import { Calculator, BarChart2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
+const TanStackRouterDevtools =
+  import.meta.env.PROD
+    ? () => null // Render nothing in production
+    : React.lazy(() =>
+        // Lazy load in development
+        import('@tanstack/router-devtools').then((res) => ({
+          default: res.TanStackRouterDevtools,
+        })),
+      )
 
 export const Route = createRootRoute({
   component: () => {
@@ -63,7 +73,9 @@ export const Route = createRootRoute({
             </footer>
           </div>
         </div>
-        <TanStackRouterDevtools />
+        <Suspense>
+          <TanStackRouterDevtools />
+        </Suspense>
       </>
     );
   },
